@@ -15,31 +15,43 @@ const sentiment = new Sentiment()
 export default function TextBox({ enabled, onCapture }: TextBoxProps) {
   const [text, setText] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-
+  const [status, setStatus] = useState<'idle' | 'done' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  
+  
   const handleAnalyze = () => {
     if (!text.trim() || !enabled) return
-
     setIsAnalyzing(true)
+    setStatus('idle')
+    setErrorMsg(null)
 
-    // Analyze sentiment on-device
-    const result = sentiment.analyze(text)
+    try {
+      const result = sentiment.analyze(text)
 
-    // Extract features
-    const words = text.trim().split(/\s+/)
-    const wordCount = words.length
-    const negationCount = (text.match(/\b(not|no|never|nothing|nobody|nowhere|neither|nor)\b/gi) || []).length
+      const words = text.trim().split(/\s+/)
+      const wordCount = words.length
+      const negationCount =
+        (text.match(/\b(not|no|never|nothing|nobody|nowhere|neither|nor)\b/gi) || [])
+      .length
 
     const features = {
-      polarity: (result.score || 0) / 10, // Normalize to -1 to 1 range
-      subjectivity: Math.abs(result.comparative || 0), // 0 to 1
-      negationCount: Math.min(negationCount / wordCount, 1), // Normalize
-      wordCount: Math.min(wordCount / 100, 1), // Normalize to 0-1 (assuming max 100 words)
-    }
+    polarity: (result.score || 0) / 10,
+    subjectivity: Math.abs(result.comparative || 0),
+    negationCount: Math.min(negationCount / wordCount, 1),
+    wordCount: Math.min(wordCount / 100, 1),
+  }
 
-    const embedding = packTextEmbedding(features)
-    onCapture(embedding, features)
+  const embedding = packTextEmbedding(features)
+  onCapture(embedding, features)
 
-    setIsAnalyzing(false)
+  setStatus('done')
+} catch (err) {
+  setStatus('error')
+  setErrorMsg('Text analysis failed.')
+} finally {
+  setIsAnalyzing(false)
+}
+
   }
 
   if (!enabled) {
@@ -69,6 +81,27 @@ export default function TextBox({ enabled, onCapture }: TextBoxProps) {
       >
         {isAnalyzing ? 'Analyzing...' : 'Analyze Text'}
       </button>
+      {status === 'done' && (
+  <p className="text-sm text-green-600 mt-2 text-center">
+    ✓ Text analyzed successfully
+  </p>
+)}
+
+{status === 'error' && (
+  <div className="text-center mt-2">
+    <p className="text-sm text-red-600">{errorMsg}</p>
+    <button
+      onClick={() => {
+        setStatus('idle')
+        setErrorMsg(null)
+      }}
+      className="text-sm text-indigo-600 underline"
+    >
+      Retry
+    </button>
+  </div>
+)}
+
     </div>
   )
 }
