@@ -68,12 +68,33 @@ export default function TextBox({ enabled, onCapture }: TextBoxProps) {
         Journal Entry / Text Input
       </label>
       <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="How are you feeling today? Share your thoughts..."
-        className="w-full border border-gray-300 rounded-lg p-3 min-h-[120px] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        rows={5}
-      />
+  value={text}
+  onChange={(e) => setText(e.target.value)}
+  placeholder="How are you feeling today? Share your thoughts..."
+  rows={5}
+  className="
+    w-full
+    rounded-lg
+    p-3
+    min-h-[120px]
+    border
+    border-gray-300
+    bg-white
+    text-gray-900
+    placeholder-gray-400
+
+    dark:bg-gray-900
+    dark:text-gray-100
+    dark:border-gray-700
+    dark:placeholder-gray-500
+
+    focus:outline-none
+    focus:ring-2
+    focus:ring-indigo-500
+    focus:border-indigo-500
+  "
+/>
+
       <button
         onClick={handleAnalyze}
         disabled={!text.trim() || isAnalyzing}

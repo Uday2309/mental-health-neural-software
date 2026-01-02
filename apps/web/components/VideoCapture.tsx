@@ -178,17 +178,20 @@ export default function VideoCapture({
         </p>
       )}
 
-      {status === 'capturing' && (
+      {(status === 'requesting' || status === 'capturing') && (
         <>
           <video
             ref={videoRef}
-            className="w-full rounded-lg border"
+            autoPlay
             playsInline
             muted
+            className="w-full rounded-lg border"
           />
+          {status === 'capturing' && (
           <p className="text-sm text-indigo-600 text-center">
             Capturing… ({frameCountRef.current}/2)
           </p>
+          )}
         </>
       )}
 

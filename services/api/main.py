@@ -167,19 +167,27 @@ class AttentionFusion:
             weights = {'v': 0.0, 'a': 0.0, 't': 0.0, 'c': 0.0}
         
         # Weighted fusion
+        # Weighted fusion
         if modalities:
-            stress_score = sum(stress * weight for _, stress, weight in modalities)
-            stress_score = max(0.0, min(1.0, stress_score))  # Clamp to [0, 1]
+           raw_score = sum(stress * weight for _, stress, weight in modalities)
+
+    # Amplify signal (critical)
+           stress_score = raw_score * 2.5  
+
+    # Clamp
+           stress_score = max(0.0, min(1.0, stress_score))
         else:
-            stress_score = 0.5  # Default if no modalities
+           stress_score = 0.5 
+ 
         
-        # Determine label
-        if stress_score < 0.33:
-            label = 'GREEN'
-        elif stress_score < 0.67:
-            label = 'AMBER'
+        
+        if stress_score < 0.4:
+           label = 'GREEN'
+        elif stress_score < 0.7:
+           label = 'AMBER'
         else:
-            label = 'RED'
+           label = 'RED'
+
         
         # Generate top factors
         top_factors = sorted(
@@ -189,13 +197,14 @@ class AttentionFusion:
         )[:3]
         
         factors = [
-            {
-                'modality': mod,
-                'impact': stress * weight,
-                'description': f'{mod.capitalize()} features indicate {"high" if stress > 0.5 else "moderate" if stress > 0.3 else "low"} stress levels'
-            }
-            for mod, stress, weight in top_factors
-        ]
+    {
+        'modality': mod,
+        'impact': stress * weight * 100,
+        'description': f'{mod.capitalize()} features indicate {"high" if stress > 0.5 else "moderate" if stress > 0.3 else "low"} stress levels'
+    }
+    for mod, stress, weight in top_factors
+]
+
         
         return stress_score, weights, factors
 
