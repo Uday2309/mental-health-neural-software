@@ -104,22 +104,29 @@ export default function ResultsCard({ result, consent }: ResultsCardProps) {
             Top Contributing Factors
           </h3>
           <div className="space-y-2">
-            {result.topFactors.map((factor, idx) => (
-              <div key={idx} className="flex items-center justify-between">
-                <span className="text-gray-700 capitalize">{factor.modality}</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-indigo-600 h-2 rounded-full"
-                      style={{ width: `${factor.impact * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-sm text-gray-600 w-12 text-right">
-                    {(factor.impact * 100).toFixed(0)}%
-                  </span>
-                </div>
-              </div>
-            ))}
+            {result.topFactors.map((factor, idx) => {
+  const percent = Math.min(100, Math.round(factor.impact * 100))
+
+  return (
+    <div key={idx} className="flex items-center justify-between">
+      <span className="text-gray-700 capitalize">{factor.modality}</span>
+
+      <div className="flex items-center space-x-2">
+        <div className="w-32 bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-indigo-600 h-2 rounded-full transition-all"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+
+        <span className="text-sm text-gray-600 w-12 text-right">
+          {percent}%
+        </span>
+      </div>
+    </div>
+  )
+})}
+
           </div>
         </div>
       )}
